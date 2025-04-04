@@ -56,7 +56,7 @@ const Home = () => {
       Math.round(
         (lastFuelUp.mileage -
           (secondLastFuelUp ? secondLastFuelUp.mileage : 0)) *
-          100
+          100,
       ) / 100;
     const fuelUsed = Math.round(lastFuelUp.fuelQuantity * 100) / 100;
     const economy = Math.round((distance / fuelUsed) * 100) / 100;
@@ -114,7 +114,7 @@ const Home = () => {
 
     const economy =
       Math.round(
-        (totalDistance / (fuelUsed - firstFuelUp.fuelQuantity)) * 100
+        (totalDistance / (fuelUsed - firstFuelUp.fuelQuantity)) * 100,
       ) / 100;
     fuelUsed = Math.round((fuelUsed / (fuelUpsLength + 1)) * 100) / 100;
 

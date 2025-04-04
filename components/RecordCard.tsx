@@ -33,7 +33,7 @@ const buttonVariants = (info: any) => {
         data4Label: "Economy:",
         data4:
           Math.round(
-            ((info.mileage - info.previousMileage) / info.fuelQuantity) * 100
+            ((info.mileage - info.previousMileage) / info.fuelQuantity) * 100,
           ) /
             100 +
           " km/L",

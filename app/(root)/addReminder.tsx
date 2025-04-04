@@ -47,7 +47,7 @@ const AddReminder = () => {
   useEffect(() => {
     if (update && activeVehicle) {
       const reminderRecord = activeVehicleData.reminders.find(
-        (reminder) => reminder.id === update
+        (reminder) => reminder.id === update,
       );
       if (reminderRecord) {
         setForm({
@@ -91,7 +91,7 @@ const AddReminder = () => {
     } catch (error) {
       console.error(
         `Error ${update ? "Updating" : "Submitting"} Reminder:`,
-        error
+        error,
       );
     } finally {
       setIsSubmitting(false);

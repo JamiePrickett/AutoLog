@@ -40,7 +40,7 @@ const AddExpense = () => {
   useEffect(() => {
     if (update) {
       const expenseRecord = activeVehicleData.expenses.find(
-        (expense) => expense.id === update
+        (expense) => expense.id === update,
       );
       if (expenseRecord) {
         setForm({
@@ -84,7 +84,7 @@ const AddExpense = () => {
     } catch (error) {
       console.error(
         `Error ${update ? "Updating" : "Submitting"} Expense:`,
-        error
+        error,
       );
     } finally {
       setIsSubmitting(false);

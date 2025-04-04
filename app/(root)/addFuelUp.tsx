@@ -40,7 +40,7 @@ const AddFuelUp = () => {
   useEffect(() => {
     if (update) {
       const fuelUpRecord = activeVehicleData.fuelUps.find(
-        (fuelUp) => fuelUp.id === update
+        (fuelUp) => fuelUp.id === update,
       );
       if (fuelUpRecord) {
         setForm({
@@ -82,7 +82,7 @@ const AddFuelUp = () => {
     } catch (error) {
       console.error(
         `Error ${update ? "Updating" : "Submitting"} FuelUp:`,
-        error
+        error,
       );
     } finally {
       setIsSubmitting(false);

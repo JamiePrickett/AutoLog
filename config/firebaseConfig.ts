@@ -5,8 +5,10 @@ import {
   deleteDoc,
   doc,
   getDocs,
-  getFirestore,
+  initializeFirestore,
+  onSnapshot,
   orderBy,
+  persistentLocalCache,
   query,
   updateDoc,
 } from "firebase/firestore";
@@ -14,7 +16,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   initializeAuth,
-  //@ts-ignore
+  // @ts-ignore
   getReactNativePersistence,
   signOut,
 } from "firebase/auth";
@@ -40,7 +42,9 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Initialize Cloud Firestore and get a reference to the service
-const db = getFirestore(app);
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache(),
+});
 
 // For more information on how to access Firebase in your project,
 // see the Firebase documentation: https://firebase.google.com/docs/web/setup#access-firebase
@@ -50,25 +54,28 @@ export const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage),
 });
 
-const noUser = () => {
-  console.log("No user logged in");
-  router.replace("/(auth)/onboarding");
+const getCurrentUser = () => {
+  const user = auth.currentUser;
+  if (!user) {
+    console.log("No user logged in");
+    router.replace("/(auth)/onboarding");
+    return null;
+  }
+  return user;
 };
 
 export const createUser = async (email: string, password: string) => {
   console.log("createUser called\n\n");
   try {
-    const signedInUser = await createUserWithEmailAndPassword(
+    const currentUser = await createUserWithEmailAndPassword(
       auth,
       email,
       password
     );
-    const user = signedInUser.user;
 
-    console.log(`User created with UID: ${user.uid}`);
-    // const signedInUser = await signInEmailPassword(email, password);
+    console.log(`User created with UID: ${currentUser.user.uid}`);
 
-    return user;
+    return currentUser.user;
   } catch (error) {
     console.error("Error Creating account:", error);
   }
@@ -77,16 +84,11 @@ export const createUser = async (email: string, password: string) => {
 export const signInEmailPassword = async (email: string, password: string) => {
   console.log("signInEmailPassword called\n\n");
   try {
-    const signedInUser = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password
-    );
-    const user = signedInUser.user;
+    const currentUser = await signInWithEmailAndPassword(auth, email, password);
 
-    console.log(`User signed in with UID: ${user.uid}`);
+    console.log(`User signed in with UID: ${currentUser.user.uid}`);
 
-    return user;
+    return currentUser.user;
   } catch (error) {
     console.error("Error Signing In:", error);
   }
@@ -105,12 +107,10 @@ export const signUserOut = async () => {
 
 export const writeVehicle = async (vehicleData: vehicleData) => {
   console.log("writeVehicle called\n\n");
+  const user = getCurrentUser();
+  if (!user) return;
+
   try {
-    const user = auth.currentUser;
-    if (!user) {
-      noUser();
-      return;
-    }
     const vehicleRef = collection(db, "users", user.uid, "vehicles");
     await addDoc(vehicleRef, vehicleData);
 
@@ -125,35 +125,31 @@ export const updateVehicle = async (
   vehicleId: string
 ) => {
   console.log("updateVehicle called\n\n");
+  const user = getCurrentUser();
+  if (!user) return;
+
   try {
-    const user = auth.currentUser;
-    if (!user) {
-      noUser();
-      return;
-    }
     const vehicleDocRef = doc(db, "users", user.uid, "vehicles", vehicleId);
 
     await updateDoc(vehicleDocRef, vehicleData);
 
     console.log("Vehicle updated with ID:", vehicleId);
   } catch (error) {
-    console.error("Error updating vehicleData:", error);
+    console.error("Error updating vehicle:", error);
   }
 };
 
 export const deleteVehicle = async (vehicleId: string) => {
   console.log("deleteVehicle called\n\n");
+  const user = getCurrentUser();
+  if (!user) return;
+
   try {
-    const user = auth.currentUser;
-    if (!user) {
-      noUser();
-      return;
-    }
     const vehicleDocRef = doc(db, "users", user.uid, "vehicles", vehicleId);
 
     await deleteDoc(vehicleDocRef);
 
-    console.log(`Vehicle Doc: ${vehicleId} deleted`);
+    console.log(`Vehicle Deleted: ${vehicleId}`);
   } catch (error) {
     console.error("Error deleting Vehicle:", error);
   }
@@ -165,12 +161,10 @@ export const writeRecord = async (
   recordData: fuelUpData | expenseData | reminderData
 ) => {
   console.log("writeRecord called\n\n");
+  const user = getCurrentUser();
+  if (!user) return;
+
   try {
-    const user = auth.currentUser;
-    if (!user) {
-      noUser();
-      return;
-    }
     const RecordRef = collection(
       db,
       "users",
@@ -182,12 +176,17 @@ export const writeRecord = async (
 
     await addDoc(RecordRef, recordData);
 
-    const vehicleRef = doc(db, "users", user.uid, "vehicles", vehicleId);
-    {
-      recordType === "fuelUps" //@ts-ignore
-        ? await updateDoc(vehicleRef, { mileage: recordData.mileage })
-        : "";
+    if (recordType === "fuelUps") {
+      const vehicleRef = doc(db, "users", user.uid, "vehicles", vehicleId);
+
+      if (recordType === "fuelUps" && "mileage" in recordData) {
+        await updateDoc(vehicleRef, {
+          mileage: recordData.mileage,
+        });
+      }
     }
+
+    console.log(`Record added: ${recordType}`);
   } catch (error) {
     console.error(`Error writing ${recordType}:`, error);
   }
@@ -200,12 +199,10 @@ export const updateRecord = async (
   updatedData: fuelUpData | expenseData | reminderData
 ) => {
   console.log("updateRecord called\n\n");
+  const user = getCurrentUser();
+  if (!user) return;
+
   try {
-    const user = auth.currentUser;
-    if (!user) {
-      noUser();
-      return;
-    }
     const RecordRef = doc(
       db,
       "users",
@@ -217,6 +214,7 @@ export const updateRecord = async (
     );
 
     await updateDoc(RecordRef, updatedData);
+    console.log(`Record updated: ${recordType}`);
   } catch (error) {
     console.error(`Error updating ${recordType}:`, error);
   }
@@ -228,12 +226,10 @@ export const deleteRecord = async (
   recordId: string
 ) => {
   console.log("deleteRecord called\n\n");
+  const user = getCurrentUser();
+  if (!user) return;
+
   try {
-    const user = auth.currentUser;
-    if (!user) {
-      noUser();
-      return;
-    }
     const recordRef = doc(
       db,
       "users",
@@ -245,6 +241,7 @@ export const deleteRecord = async (
     );
 
     await deleteDoc(recordRef);
+    console.log(`Record deleted: ${recordType}`);
   } catch (error) {
     console.error("Error deleting record:", error);
   }
@@ -252,21 +249,17 @@ export const deleteRecord = async (
 
 export const fetchVehicles = async () => {
   console.log("fetchVehicles called\n\n");
+  const user = getCurrentUser();
+  if (!user) return;
+
   try {
-    const user = auth.currentUser;
-    if (!user) {
-      noUser();
-      return [];
-    }
     const vehicleRef = collection(db, "users", user.uid, "vehicles");
     const vehicleSnapshot = await getDocs(vehicleRef);
 
-    const vehicles = vehicleSnapshot.docs.map((doc) => ({
+    return vehicleSnapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
     })) as vehicleData[];
-
-    return vehicles;
   } catch (error) {
     console.error("Error fetching vehicles:", error);
     return [];
@@ -275,41 +268,28 @@ export const fetchVehicles = async () => {
 
 export const fetchActiveVehicleData = async (vehicleId: string) => {
   console.log("fetchActiveVehicleData called\n\n");
+  const user = getCurrentUser();
+  if (!user) return;
+
   try {
-    const user = auth.currentUser;
-    if (!user) {
-      noUser();
-      return;
-    }
     const vehicleIdDocRef = doc(db, "users", user.uid, "vehicles", vehicleId);
 
     const fuelUpsRef = collection(vehicleIdDocRef, "fuelUps");
     const expensesRef = collection(vehicleIdDocRef, "expenses");
     const remindersRef = collection(vehicleIdDocRef, "reminders");
 
-    if (!fuelUpsRef || !expensesRef || !remindersRef) {
-      console.error(
-        `Missing Ref, fuelUpRef: ${fuelUpsRef}, expensesRef: ${expensesRef}, remindersRef: ${remindersRef}`
-      );
-      return;
-    }
-
-    const queries = [
+    const [fuelUps, expenses, reminders] = await Promise.all([
       getDocs(query(fuelUpsRef, orderBy("date", "desc"))),
       getDocs(query(expensesRef, orderBy("date", "desc"))),
       getDocs(query(remindersRef, orderBy("date", "desc"))),
-    ];
-    const [fuelUpsSnapshot, expensesSnapshot, remindersSnapshot] =
-      await Promise.all(queries);
+    ]);
 
     const formatDoc = <type>(doc: any): type => ({ id: doc.id, ...doc.data() });
 
     return {
-      fuelUps: fuelUpsSnapshot.docs.map((doc) => formatDoc<fuelUpData>(doc)),
-      expenses: expensesSnapshot.docs.map((doc) => formatDoc<expenseData>(doc)),
-      reminders: remindersSnapshot.docs.map((doc) =>
-        formatDoc<reminderData>(doc)
-      ),
+      fuelUps: fuelUps.docs.map((doc) => formatDoc<fuelUpData>(doc)),
+      expenses: expenses.docs.map((doc) => formatDoc<expenseData>(doc)),
+      reminders: reminders.docs.map((doc) => formatDoc<reminderData>(doc)),
     };
   } catch (error) {
     console.error("Error fetching active vehicle data:", error);

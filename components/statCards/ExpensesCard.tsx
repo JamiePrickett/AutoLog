@@ -14,7 +14,7 @@ const FuelCard = () => {
 
   const totalCost = activeVehicleData.expenses.reduce(
     (sum, expense) => sum + expense.price,
-    0
+    0,
   );
 
   const chartData = activeVehicleData.expenses.map((item) => {
@@ -27,7 +27,7 @@ const FuelCard = () => {
   });
 
   const maxPrice = Math.max(
-    ...activeVehicleData.expenses.map((item) => item.price)
+    ...activeVehicleData.expenses.map((item) => item.price),
   );
   const maxValue = Math.round(maxPrice + maxPrice / 6);
 

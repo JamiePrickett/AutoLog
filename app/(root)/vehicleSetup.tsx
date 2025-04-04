@@ -8,7 +8,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useRef, useState } from "react";
 import {
   deleteVehicle,
-  fetchVehicles,
   updateVehicle,
   writeVehicle,
 } from "@/config/firebaseConfig";
@@ -71,10 +70,10 @@ const VehicleSetup = () => {
         return;
       }
 
-      {
-        update
-          ? await updateVehicle(vehicleData, activeVehicle?.id!)
-          : await writeVehicle(vehicleData);
+      if (update) {
+        await updateVehicle(vehicleData, activeVehicle?.id!);
+      } else {
+        await writeVehicle(vehicleData);
       }
 
       router.replace("/(root)/(tabs)/home");
@@ -83,6 +82,18 @@ const VehicleSetup = () => {
         `Error ${update ? "Updating" : "Submitting"} vehicle:`,
         error
       );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsSubmitting(true);
+    try {
+      await deleteVehicle(activeVehicle?.id!);
+      router.replace("/(root)/(tabs)/home");
+    } catch (error) {
+      console.error("Error deleting vehicle:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -192,7 +203,7 @@ const VehicleSetup = () => {
           {update ? (
             <CustomButton
               disabled={isSubmitting}
-              onPress={() => deleteVehicle(activeVehicle?.id!)}
+              onPress={handleDelete}
               label="Delete"
               variant="outline"
               styles="mt-12"
@@ -207,3 +218,6 @@ const VehicleSetup = () => {
 };
 
 export default VehicleSetup;
+function fetchUserVehicles() {
+  throw new Error("Function not implemented.");
+}

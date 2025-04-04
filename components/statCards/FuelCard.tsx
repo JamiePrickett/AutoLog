@@ -46,7 +46,7 @@ const FuelCard = () => {
 
   const maxPrice = Math.max(
     0,
-    ...activeVehicleData.fuelUps.map((item) => item.price)
+    ...activeVehicleData.fuelUps.map((item) => item.price),
   );
   const maxValue = Math.round(maxPrice + maxPrice / 2);
 

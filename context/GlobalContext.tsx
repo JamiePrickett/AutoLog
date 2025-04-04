@@ -103,6 +103,7 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
     if (!user) return;
     try {
       const fetchedVehicles = await fetchVehicles();
+      if (!fetchedVehicles) return;
       setVehicles(fetchedVehicles);
 
       if (!activeVehicle && fetchedVehicles.length > 0) {
