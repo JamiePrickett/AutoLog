@@ -64,8 +64,8 @@ const Home = () => {
       Math.round(lastFuelUp.fuelQuantity * lastFuelUp.price * 100) / 100;
 
     const unitDistance = distance + units.distance;
-    const unitFuelUsed = fuelUsed + " L";
-    const unitEconomy = economy + " km/L";
+    const unitFuelUsed = fuelUsed + units.fuel;
+    const unitEconomy = economy + ` ${units.distance}/${units.fuel}`;
     const unitCost = "$" + cost;
 
     return [unitDistance, unitFuelUsed, unitEconomy, unitCost];
