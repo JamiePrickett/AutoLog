@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "63782708456",
+    "project_id": "autolog-jp",
+    "storage_bucket": "autolog-jp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:63782708456:android:7cfbf01b8b99e62af8d55d",
+        "android_client_info": {
+          "package_name": "com.Jamie.AutoLog"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZLkf9Q7CHAPQMwhgPSfJ9vOaNnrEa3ns"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

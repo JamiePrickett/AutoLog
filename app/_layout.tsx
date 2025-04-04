@@ -1,39 +1,36 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
-import 'react-native-reanimated';
-
-import { useColorScheme } from '@/hooks/useColorScheme';
-
-// Prevent the splash screen from auto-hiding before asset loading is complete.
-SplashScreen.preventAutoHideAsync();
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useFonts } from "expo-font";
+import { GlobalProvider } from "@/context/GlobalContext";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
   const [loaded] = useFonts({
-    SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
+    "Geologica-Black": require("../assets/fonts/Geologica-Black.ttf"),
+    "Geologica-Bold": require("../assets/fonts/Geologica-Bold.ttf"), //in use
+    "Geologica-ExtraBold": require("../assets/fonts/Geologica-ExtraBold.ttf"),
+    "Geologica-ExtraLight": require("../assets/fonts/Geologica-ExtraLight.ttf"),
+    "Geologica-Light": require("../assets/fonts/Geologica-Light.ttf"),
+    Geologica: require("../assets/fonts/Geologica-Regular.ttf"), //in use
+    "Geologica-SemiBold": require("../assets/fonts/Geologica-SemiBold.ttf"), //in use
+    "Geologica-Thin": require("../assets/fonts/Geologica-Thin.ttf"),
   });
 
-  useEffect(() => {
-    if (loaded) {
-      SplashScreen.hideAsync();
-    }
-  }, [loaded]);
-
   if (!loaded) {
-    return null;
+    return <StatusBar style="dark" />;
   }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
+    <GlobalProvider>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+        }}
+      >
+        <Stack.Screen name="index" />
+        <Stack.Screen name="(auth)" />
+        <Stack.Screen name="(root)" />
       </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+      <StatusBar style="light" />
+    </GlobalProvider>
   );
 }
