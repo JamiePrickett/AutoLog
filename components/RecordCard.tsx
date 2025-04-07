@@ -10,92 +10,158 @@ import DataField from "./fields/DataField";
 import Header1 from "./Text/Header1";
 import { useState } from "react";
 import { router } from "expo-router";
+import { useGlobal } from "@/context/GlobalContext";
+import {
+  convertDistance,
+  convertEconomy,
+  convertFuel,
+} from "@/utils/unitConversion";
 
 const formatDate = (date: string) => {
   const formatDate = new Date(date);
   return formatDate.toLocaleDateString("en-GB");
 };
 
-const buttonVariants = (info: any) => {
-  switch (info.variant) {
-    case "Fuel Up":
-      return {
-        icon: "fuel",
-        iconColor: "#F4743A",
-        borderColor: "border-primary-200",
-        bgColor: "bg-primary-200",
-        data1Label: "Distance:",
-        data1: info.mileage - info.previousMileage + " km",
-        data2Label: "Fuel Qty:",
-        data2: info.fuelQuantity + " L",
-        data3Label: "mileage:",
-        data3: info.mileage + " km",
-        data4Label: "Economy:",
-        data4:
-          Math.round(
-            ((info.mileage - info.previousMileage) / info.fuelQuantity) * 100,
-          ) /
-            100 +
-          " km/L",
-        data5Label: "Fuel Price:",
-        data5: "$" + info.price,
-        data6Label: "Cost:",
-        data6: "$" + Math.round(info.fuelQuantity * info.price * 100) / 100,
-      };
-    case "Expense":
-      return {
-        icon: "clipboard-text-outline",
-        iconColor: "#EF4336",
-        borderColor: "border-primary-100",
-        bgColor: "bg-primary-100",
-        data1Label: "Item:",
-        data1: info.expense,
-        data2Label: "Price:",
-        data2: "$" + info.price,
-        data3Label: "Notes:",
-        data3: info.notes || "none",
-        data4Label: "Due",
-        data5Label: "Date:",
-        data5: formatDate(info.date),
-        data6Label: "Mileage:",
-        data6: info.dueMileage ? info.dueMileage + "km" : "none",
-      };
-    case "Reminder":
-      return {
-        icon: "car-clock",
-        iconColor: "#FBAF40",
-        borderColor: "border-primary-300",
-        bgColor: "bg-primary-300",
-        data1Label: "Reminder:",
-        data1: info.reminder,
-        data2Label: "Done:",
-        data2: info.done ? "Yes" : "No",
-        data3Label: "Repeat:",
-        data3: info.repeat ? "Yes" : "No",
-        data4Label: "Due",
-        data5Label: "Date:",
-        data5: formatDate(info.date),
-        data6Label: "Mileage:",
-        data6: info.dueMileage ? info.dueMileage + "km" : "none",
-      };
-    default:
-      return {
-        icon: "air-bag",
-        iconColor: "#ffffff",
-        borderColor: "border-light-200",
-        data2Label: "uh oh",
-        data2: "uh oh",
-        data3Label: "uh oh",
-        data3: "uh oh",
-        data5Label: "uh oh",
-        data5: "uh oh",
-        data6Label: "uh oh",
-        data6: "uh oh",
-      };
+interface RecordInfo {
+  variant: string;
+  id: string;
+  date: string;
+  mileage: number;
+  previousMileage: number;
+  fuelQuantity: number;
+  price: number;
+  expense: string;
+  notes: string;
+  reminder: string;
+  done: boolean;
+  repeat: boolean;
+  dueMileage: number;
+}
+
+interface Units {
+  distance: "km" | "mi";
+  fuel: "gal (US)" | "gal (UK)" | "L";
+  economy: "L/100km" | "mpg (US)" | "mpg (UK)";
+}
+
+interface VariantData {
+  icon: string;
+  iconColor: string;
+  borderColor: string;
+  bgColor: string;
+  data1Label: string;
+  data1: string;
+  data2Label: string;
+  data2: string;
+  data3Label: string;
+  data3: string;
+  data4Label: string;
+  data4?: string;
+  data5Label: string;
+  data5: string;
+  data6Label: string;
+  data6: string;
+}
+
+const buttonVariants = (info: RecordInfo, units: Units): VariantData => {
+  let variantData: VariantData = {
+    icon: "",
+    iconColor: "",
+    borderColor: "",
+    bgColor: "",
+    data1Label: "",
+    data1: "",
+    data2Label: "",
+    data2: "",
+    data3Label: "",
+    data3: "",
+    data4Label: "",
+    data4: "",
+    data5Label: "",
+    data5: "",
+    data6Label: "",
+    data6: "",
+  };
+
+  if (info.variant === "Fuel Up") {
+    const distanceConverted = convertDistance(
+      info.mileage - info.previousMileage,
+      units.distance
+    );
+    const fuelConverted = convertFuel(info.fuelQuantity, units.fuel);
+    const mileageConverted = convertDistance(info.mileage, units.distance);
+    const economyConverted = convertEconomy(
+      (info.mileage - info.previousMileage) / info.fuelQuantity,
+      units.economy
+    );
+    const costConverted =
+      Math.round(info.fuelQuantity * info.price * 100) / 100;
+    variantData = {
+      icon: "fuel",
+      iconColor: "#F4743A",
+      borderColor: "border-primary-200",
+      bgColor: "bg-primary-200",
+      data1Label: "Distance:",
+      data1: `${distanceConverted} ${units.distance}`,
+      data2Label: "Fuel Qty:",
+      data2: `${fuelConverted} ${units.fuel}`,
+      data3Label: "mileage:",
+      data3: `${mileageConverted} ${units.distance}`,
+      data4Label: "Economy:",
+      data4: `${economyConverted} ${units.economy}`,
+      data5Label: "Fuel Price:",
+      data5: "$" + info.price,
+      data6Label: "Cost:",
+      data6: "$" + costConverted,
+    };
+  } else if (info.variant === "Expense") {
+    variantData = {
+      icon: "clipboard-text-outline",
+      iconColor: "#EF4336",
+      borderColor: "border-primary-100",
+      bgColor: "bg-primary-100",
+      data1Label: "Item:",
+      data1: info.expense,
+      data2Label: "Price:",
+      data2: "$" + info.price,
+      data3Label: "Notes:",
+      data3: info.notes || "none",
+      data4Label: "Due",
+      data5Label: "Date:",
+      data5: formatDate(info.date),
+      data6Label: "Mileage:",
+      data6: info.dueMileage
+        ? convertDistance(info.dueMileage, units.distance) +
+          ` ${units.distance}`
+        : "none",
+    };
+  } else {
+    variantData = {
+      icon: "car-clock",
+      iconColor: "#FBAF40",
+      borderColor: "border-primary-300",
+      bgColor: "bg-primary-300",
+      data1Label: "Reminder:",
+      data1: info.reminder,
+      data2Label: "Done:",
+      data2: info.done ? "Yes" : "No",
+      data3Label: "Repeat:",
+      data3: info.repeat ? "Yes" : "No",
+      data4Label: "Due",
+      data5Label: "Date:",
+      data5: formatDate(info.date),
+      data6Label: "Mileage:",
+      data6: info.dueMileage
+        ? convertDistance(info.dueMileage, units.distance) +
+          ` ${units.distance}`
+        : "none",
+    };
   }
+  return variantData;
 };
 
 const RecordCard = ({ info }: any) => {
+  const { units } = useGlobal();
   const {
     icon,
     iconColor,
@@ -113,7 +179,7 @@ const RecordCard = ({ info }: any) => {
     data5,
     data6Label,
     data6,
-  } = buttonVariants(info);
+  } = buttonVariants(info, units);
   const [showModal, setShowModal] = useState(false);
 
   const handleEdit = () => {

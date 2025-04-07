@@ -9,6 +9,11 @@ import Paragraph from "@/components/Text/Paragraph";
 import Title from "@/components/Text/Title";
 import { images } from "@/constants";
 import { useGlobal } from "@/context/GlobalContext";
+import {
+  convertDistance,
+  convertEconomy,
+  convertFuel,
+} from "@/utils/unitConversion";
 import { router } from "expo-router";
 import { useEffect, useState } from "react";
 import {
@@ -52,32 +57,24 @@ const Home = () => {
       return ["N/A", "N/A", "N/A", "N/A"];
     }
 
-    const distance =
-      Math.round(
-        (lastFuelUp.mileage -
-          (secondLastFuelUp ? secondLastFuelUp.mileage : 0)) *
-          100,
-      ) / 100;
-    const fuelUsed = Math.round(lastFuelUp.fuelQuantity * 100) / 100;
-    const economy = Math.round((distance / fuelUsed) * 100) / 100;
-    const cost =
-      Math.round(lastFuelUp.fuelQuantity * lastFuelUp.price * 100) / 100;
+    const distance = lastFuelUp.mileage - (secondLastFuelUp?.mileage || 0);
+    const fuelUsed = lastFuelUp.fuelQuantity;
+    const economy = distance / fuelUsed;
+    const cost = lastFuelUp.fuelQuantity * lastFuelUp.price;
 
-    const unitDistance = distance + units.distance;
-    const unitFuelUsed = fuelUsed + units.fuel;
-    const unitEconomy = economy + ` ${units.distance}/${units.fuel}`;
-    const unitCost = "$" + cost;
-
-    return [unitDistance, unitFuelUsed, unitEconomy, unitCost];
+    return [
+      `${convertDistance(distance, units.distance)} ${units.distance}`,
+      `${convertFuel(fuelUsed, units.fuel)} ${units.fuel}`,
+      `${convertEconomy(economy, units.economy)} ${units.economy}`,
+      `$${Math.round(cost * 100) / 100}`,
+    ];
   };
-  const [prevDistance, prevFuelUsed, prevEconomy, prevCost] = previousData();
 
   const total = () => {
     if (!lastFuelUp || !firstFuelUp || activeVehicleData.fuelUps.length < 2) {
       return ["N/A", "N/A", "N/A"];
     }
-    const distance =
-      Math.round((lastFuelUp.mileage - firstFuelUp.mileage) * 100) / 100;
+    const distance = lastFuelUp.mileage - firstFuelUp.mileage;
     let fuelUsed = 0;
     let cost = 0;
 
@@ -85,14 +82,12 @@ const Home = () => {
       fuelUsed += fuelUp.fuelQuantity;
       cost += fuelUp.fuelQuantity * fuelUp.price;
     });
-
-    const unitDistance = distance + " km";
-    const unitFuelUsed = Math.round(fuelUsed * 100) / 100 + " L";
-    const unitCost = "$" + Math.round(cost * 100) / 100;
-
-    return [unitDistance, unitFuelUsed, unitCost];
+    return [
+      `${convertDistance(distance, units.distance)} ${units.distance}`,
+      `${convertFuel(fuelUsed, units.fuel)} ${units.fuel}`,
+      `$${Math.round(cost * 100) / 100}`,
+    ];
   };
-  const [totalDistance, totalFuelUsed, totalCost] = total();
 
   const average = () => {
     if (!lastFuelUp || !firstFuelUp || activeVehicleData.fuelUps.length < 2) {
@@ -100,9 +95,7 @@ const Home = () => {
     }
 
     const fuelUpsLength = activeVehicleData.fuelUps.length - 1;
-
     const totalDistance = lastFuelUp.mileage - firstFuelUp.mileage;
-    const distance = Math.round((totalDistance / fuelUpsLength) * 100) / 100;
 
     let fuelUsed = 0;
     let cost = 0;
@@ -112,19 +105,20 @@ const Home = () => {
         (cost += fuelUp.fuelQuantity * fuelUp.price);
     });
 
-    const economy =
-      Math.round(
-        (totalDistance / (fuelUsed - firstFuelUp.fuelQuantity)) * 100,
-      ) / 100;
+    const distance = totalDistance / fuelUpsLength;
+    const economy = totalDistance / (fuelUsed - firstFuelUp.fuelQuantity);
     fuelUsed = Math.round((fuelUsed / (fuelUpsLength + 1)) * 100) / 100;
 
-    const unitDistance = distance + " km";
-    const unitFuelUsed = fuelUsed + " L";
-    const unitEconomy = economy + " km/L";
-    const unitCost = "$" + Math.round((cost / (fuelUpsLength + 1)) * 100) / 100;
-
-    return [unitDistance, unitFuelUsed, unitEconomy, unitCost];
+    return [
+      `${convertDistance(distance, units.distance)} ${units.distance}`,
+      `${convertFuel(fuelUsed / (fuelUpsLength + 1), units.fuel)} ${units.fuel}`,
+      `${convertEconomy(economy, units.economy)} ${units.economy}`,
+      `$${Math.round((cost / (fuelUpsLength + 1)) * 100) / 100}`,
+    ];
   };
+
+  const [prevDistance, prevFuelUsed, prevEconomy, prevCost] = previousData();
+  const [totalDistance, totalFuelUsed, totalCost] = total();
   const [averageDistance, averageFuelUsed, averageEconomy, averageCost] =
     average();
 
@@ -185,17 +179,15 @@ const Home = () => {
                 />
               </View>
             </View>
-            <Image
-              source={
-                activeVehicle?.image
-                  ? {
-                      uri: activeVehicle?.image,
-                    }
-                  : images.onboarding1
-              }
-              className="w-full aspect-[4/2] mb-3"
-              resizeMode="contain"
-            />
+            {activeVehicle?.image && (
+              <Image
+                source={{
+                  uri: activeVehicle?.image,
+                }}
+                className="w-full aspect-[4/2] mb-3"
+                resizeMode="contain"
+              />
+            )}
             <Title title={`${activeVehicle?.vehicleName} Info:`} />
             <TouchableOpacity
               onPress={() =>
@@ -208,7 +200,10 @@ const Home = () => {
             >
               <DataField
                 label="Mileage:"
-                data={activeVehicle?.mileage.toString() + " km"}
+                data={`${convertDistance(
+                  activeVehicle?.mileage || 0,
+                  units.distance
+                )} ${units.distance}`}
               />
               <DataField
                 label="Fuel Type:"

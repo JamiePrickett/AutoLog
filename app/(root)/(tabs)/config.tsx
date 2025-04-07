@@ -33,7 +33,7 @@ const Config = () => {
         <View className="w-full px-5">
           <CustomButton
             onPress={() => setShowModal(true)}
-            label={`Units (${units.distance}, ${units.fuel})`}
+            label={`Units ${units.distance}, ${units.fuel}`}
             icon="car-cog"
             iconColor="#201913"
             variant="primary-300"
@@ -88,9 +88,9 @@ const Config = () => {
                     label="Gallon (US)"
                     bgColor="bg-primary-300"
                     borderColor="border-primary-300"
-                    active={units.fuel === "mpg (US)"}
+                    active={units.fuel === "gal (US)"}
                     onPress={() =>
-                      setUnits((prev) => ({ ...prev, fuel: "mpg (US)" }))
+                      setUnits((prev) => ({ ...prev, fuel: "gal (US)" }))
                     }
                   />
                   <CheckBox
@@ -98,9 +98,42 @@ const Config = () => {
                     label="Gallon (UK)"
                     bgColor="bg-primary-300"
                     borderColor="border-primary-300"
-                    active={units.fuel === "mpg (UK)"}
+                    active={units.fuel === "gal (UK)"}
                     onPress={() =>
-                      setUnits((prev) => ({ ...prev, fuel: "mpg (UK)" }))
+                      setUnits((prev) => ({ ...prev, fuel: "gal (UK)" }))
+                    }
+                  />
+                </View>
+                <Header2 text="Economy:" boxStyles="mt-2" />
+                <View className="items-end my-2">
+                  <CheckBox
+                    rounded
+                    label="L/100km"
+                    bgColor="bg-primary-300"
+                    borderColor="border-primary-300"
+                    active={units.economy === "L/100km"}
+                    onPress={() =>
+                      setUnits((prev) => ({ ...prev, economy: "L/100km" }))
+                    }
+                  />
+                  <CheckBox
+                    rounded
+                    label="mpg (US)"
+                    bgColor="bg-primary-300"
+                    borderColor="border-primary-300"
+                    active={units.economy === "mpg (US)"}
+                    onPress={() =>
+                      setUnits((prev) => ({ ...prev, economy: "mpg (US)" }))
+                    }
+                  />
+                  <CheckBox
+                    rounded
+                    label="mpg (UK)"
+                    bgColor="bg-primary-300"
+                    borderColor="border-primary-300"
+                    active={units.economy === "mpg (UK)"}
+                    onPress={() =>
+                      setUnits((prev) => ({ ...prev, economy: "mpg (UK)" }))
                     }
                   />
                 </View>

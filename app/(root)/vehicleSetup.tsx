@@ -80,7 +80,7 @@ const VehicleSetup = () => {
     } catch (error) {
       console.error(
         `Error ${update ? "Updating" : "Submitting"} vehicle:`,
-        error
+        error,
       );
     } finally {
       setIsSubmitting(false);

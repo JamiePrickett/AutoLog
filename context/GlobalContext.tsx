@@ -9,6 +9,7 @@ import {
   reminderData,
   vehicleData,
 } from "@/types/writeData";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { onAuthStateChanged, User } from "firebase/auth";
 import {
   createContext,
@@ -47,12 +48,14 @@ type GlobalContextType = {
   >;
   units: {
     distance: "km" | "mi";
-    fuel: "L" | "mpg (US)" | "mpg (UK)";
+    fuel: "L" | "gal (US)" | "gal (UK)";
+    economy: "L/100km" | "mpg (US)" | "mpg (UK)";
   };
   setUnits: React.Dispatch<
     React.SetStateAction<{
       distance: "km" | "mi";
-      fuel: "L" | "mpg (US)" | "mpg (UK)";
+      fuel: "L" | "gal (US)" | "gal (UK)";
+      economy: "L/100km" | "mpg (US)" | "mpg (UK)";
     }>
   >;
   fetchUserVehicles: () => void;
@@ -81,8 +84,47 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
   });
   const [units, setUnits] = useState({
     distance: "km" as "km" | "mi",
-    fuel: "L" as "L" | "mpg (US)" | "mpg (UK)",
+    fuel: "L" as "L" | "gal (US)" | "gal (UK)",
+    economy: "L/100km" as "L/100km" | "mpg (US)" | "mpg (UK)",
   });
+
+  useEffect(() => {
+    const fetchPersistedData = async () => {
+      const storedVehicles = await AsyncStorage.getItem("vehicles");
+      const storedActiveVehicle = await AsyncStorage.getItem("activeVehicle");
+      const storedUnits = await AsyncStorage.getItem("units");
+      const storedFilters = await AsyncStorage.getItem("filters");
+
+      if (storedVehicles) {
+        setVehicles(JSON.parse(storedVehicles));
+      }
+      if (storedActiveVehicle) {
+        setActiveVehicle(JSON.parse(storedActiveVehicle));
+      }
+      if (storedUnits) {
+        setUnits(JSON.parse(storedUnits));
+      }
+      if (storedFilters) {
+        setFilters(JSON.parse(storedFilters));
+      }
+    };
+
+    fetchPersistedData();
+  }, []);
+
+  useEffect(() => {
+    const persistData = async () => {
+      await AsyncStorage.setItem("vehicles", JSON.stringify(vehicles));
+      await AsyncStorage.setItem(
+        "activeVehicle",
+        JSON.stringify(activeVehicle),
+      );
+      await AsyncStorage.setItem("units", JSON.stringify(units));
+      await AsyncStorage.setItem("filters", JSON.stringify(filters));
+    };
+
+    persistData();
+  }, [vehicles, activeVehicle, units, filters]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
@@ -118,7 +160,7 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
     try {
       const vehicleData = await fetchActiveVehicleData(vehicleId);
       setActiveVehicleData(
-        vehicleData || { fuelUps: [], expenses: [], reminders: [] }
+        vehicleData || { fuelUps: [], expenses: [], reminders: [] },
       );
     } catch (error) {
       console.error("Error fetching active vehicle data:", error);
