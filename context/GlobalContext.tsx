@@ -59,7 +59,7 @@ type GlobalContextType = {
       economy: "L/100km" | "mpg (US)" | "mpg (UK)";
     }>
   >;
-  fetchUserVehicles: () => void;
+  handleFetchUserVehicles: () => void;
   handleFetchActiveVehicleData: (vehicleId: string) => Promise<void>;
 };
 
@@ -152,7 +152,6 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
   // initializeData function
   const initializeData = async () => {
     console.log("initialize data called");
-    if (!user) return;
 
     try {
       const fetchedVehicles = await fetchVehicles();
@@ -178,7 +177,7 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
   };
 
   // Fetch vehicles from Firebase
-  const fetchUserVehicles = async () => {
+  const handleFetchUserVehicles = async () => {
     console.log("fetch vehicles called");
     if (!user) return;
     try {
@@ -226,7 +225,7 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
         setFilters,
         units,
         setUnits,
-        fetchUserVehicles,
+        handleFetchUserVehicles,
         handleFetchActiveVehicleData,
       }}
     >

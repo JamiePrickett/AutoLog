@@ -1,10 +1,8 @@
 import { FlatList, View } from "react-native";
 import React from "react";
 import Header1 from "../Text/Header1";
-import DateModal from "../modals/DateModal";
 import Header2 from "../Text/Header2";
 import DataField from "../fields/DataField";
-import GraphOptionsModal from "../modals/GraphOptionsModal";
 import { useGlobal } from "@/context/GlobalContext";
 import Paragraph from "../Text/Paragraph";
 import LineChartComp from "../charts/LineChartComp";
@@ -14,7 +12,7 @@ const FuelCard = () => {
 
   const totalCost = activeVehicleData.expenses.reduce(
     (sum, expense) => sum + expense.price,
-    0,
+    0
   );
 
   const chartData = activeVehicleData.expenses.map((item) => {
@@ -27,19 +25,18 @@ const FuelCard = () => {
   });
 
   const maxPrice = Math.max(
-    ...activeVehicleData.expenses.map((item) => item.price),
+    ...activeVehicleData.expenses.map((item) => item.price)
   );
   const maxValue = Math.round(maxPrice + maxPrice / 6);
 
   return (
     <View className="border my-5 border-primary-100 w-full rounded-2xl">
-      <View className="flex-row justify-between p-2 border-b border-primary-100 items-center">
+      <View className="w-full items-start p-2 border-b border-primary-100">
         <Header1
           text="Expenses"
           icon="clipboard-text-outline"
           iconColor="#EF4336"
         />
-        <DateModal />
       </View>
       <View className="p-2 border-b border-primary-100">
         <Header2 text="Expenses Overview" />
@@ -58,10 +55,7 @@ const FuelCard = () => {
           />
         </View>
 
-        <View className="flex-row mt-5 justify-between items-center">
-          <Header2 text="Graph" />
-          <GraphOptionsModal />
-        </View>
+        <Header2 text="Graph" boxStyles="mt-5" />
       </View>
       <View className="flex-1 pt-5 pb-2 w-full mx-3">
         <LineChartComp data={chartData} maxValue={maxValue} />

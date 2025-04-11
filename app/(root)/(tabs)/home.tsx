@@ -25,8 +25,13 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Home = () => {
-  const { activeVehicle, activeVehicleData, fetchUserVehicles, units } =
-    useGlobal();
+  const {
+    activeVehicle,
+    activeVehicleData,
+    handleFetchUserVehicles,
+    handleFetchActiveVehicleData,
+    units,
+  } = useGlobal();
 
   const [refreshing, setRefreshing] = useState(false);
 
@@ -37,8 +42,9 @@ const Home = () => {
   const onRefresh = async () => {
     setRefreshing(true);
     try {
-      await fetchUserVehicles();
-      console.log(activeVehicle?.image);
+      await handleFetchUserVehicles();
+      if (!activeVehicle) return;
+      await handleFetchActiveVehicleData(activeVehicle.id!);
     } catch (error) {
       console.error("Error refreshing home:", error);
     } finally {

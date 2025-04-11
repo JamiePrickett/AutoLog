@@ -9,13 +9,19 @@ import { Link } from "expo-router";
 const HEIGHT = 30;
 
 const VehiclesMenu = () => {
-  const { vehicles, activeVehicle, setActiveVehicle } = useGlobal();
+  const {
+    vehicles,
+    activeVehicle,
+    setActiveVehicle,
+    handleFetchActiveVehicleData,
+  } = useGlobal();
   const [showModal, setShowModal] = useState(false);
   const heightAnimation = useRef(new Animated.Value(0)).current;
 
   const handleSelectVehicle = (vehicle: vehicleData) => {
     setActiveVehicle(vehicle);
     setShowModal(false);
+    handleFetchActiveVehicleData(vehicle.id!);
   };
 
   const handleModal = () => {

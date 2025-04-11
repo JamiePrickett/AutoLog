@@ -1,10 +1,8 @@
 import { View } from "react-native";
 import React from "react";
 import Header1 from "../Text/Header1";
-import DateModal from "../modals/DateModal";
 import Header2 from "../Text/Header2";
 import DataField from "../fields/DataField";
-import GraphOptionsModal from "../modals/GraphOptionsModal";
 import { useGlobal } from "@/context/GlobalContext";
 import LineChartComp from "../charts/LineChartComp";
 
@@ -46,15 +44,14 @@ const FuelCard = () => {
 
   const maxPrice = Math.max(
     0,
-    ...activeVehicleData.fuelUps.map((item) => item.price),
+    ...activeVehicleData.fuelUps.map((item) => item.price)
   );
   const maxValue = Math.round(maxPrice + maxPrice / 2);
 
   return (
     <View className="border my-5 border-primary-200 w-full rounded-2xl">
-      <View className="flex-row justify-between p-2 border-b border-primary-200 items-center">
+      <View className="w-full items-start p-2 border-b border-primary-200">
         <Header1 text="Fuel" icon="fuel" />
-        <DateModal />
       </View>
       <View className="p-2 border-b border-primary-200">
         <Header2 text="Fuel Economy" />
@@ -80,10 +77,7 @@ const FuelCard = () => {
           }
         />
 
-        <View className="flex-row mt-5 justify-between items-center">
-          <Header2 text="Graph" />
-          <GraphOptionsModal />
-        </View>
+        <Header2 text="Graph" boxStyles="mt-5" />
       </View>
       <View className="flex-1 pt-5 pb-2 w-full mx-3">
         <LineChartComp data={chartData} maxValue={maxValue} />
