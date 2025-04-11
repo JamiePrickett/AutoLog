@@ -60,7 +60,7 @@ const PickImageComp = ({ image, setImage }: Props) => {
             resizeMode="contain"
           ></Image>
           <TouchableOpacity
-            className="absolute top-2 right-2"
+            className="absolute top-2 right-2 bg-dark-200 rounded-full"
             onPress={() => setImage("")}
           >
             <MaterialCommunityIcons

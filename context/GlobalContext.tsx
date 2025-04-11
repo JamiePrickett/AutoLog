@@ -88,45 +88,51 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
     economy: "L/100km" as "L/100km" | "mpg (US)" | "mpg (UK)",
   });
 
+  // // fetch persisted data from AsyncStorage on mount
+  // useEffect(() => {
+  //   console.log("fetch persisted data called");
+  //   const fetchPersistedData = async () => {
+  //     const storedVehicles = await AsyncStorage.getItem("vehicles");
+  //     const storedActiveVehicle = await AsyncStorage.getItem("activeVehicle");
+  //     const storedUnits = await AsyncStorage.getItem("units");
+  //     const storedFilters = await AsyncStorage.getItem("filters");
+
+  //     if (storedVehicles) {
+  //       setVehicles(JSON.parse(storedVehicles));
+  //     }
+  //     if (storedActiveVehicle) {
+  //       setActiveVehicle(JSON.parse(storedActiveVehicle));
+  //     }
+  //     if (storedUnits) {
+  //       setUnits(JSON.parse(storedUnits));
+  //     }
+  //     if (storedFilters) {
+  //       setFilters(JSON.parse(storedFilters));
+  //     }
+  //   };
+
+  //   fetchPersistedData();
+  // }, []);
+
+  // // persist data to AsyncStorage
+  // useEffect(() => {
+  //   console.log("persist data called");
+  //   const persistData = async () => {
+  //     await AsyncStorage.setItem("vehicles", JSON.stringify(vehicles));
+  //     await AsyncStorage.setItem(
+  //       "activeVehicle",
+  //       JSON.stringify(activeVehicle)
+  //     );
+  //     await AsyncStorage.setItem("units", JSON.stringify(units));
+  //     await AsyncStorage.setItem("filters", JSON.stringify(filters));
+  //   };
+
+  //   persistData();
+  // }, [vehicles, activeVehicle, units, filters]);
+
+  // Auth state change listener
   useEffect(() => {
-    const fetchPersistedData = async () => {
-      const storedVehicles = await AsyncStorage.getItem("vehicles");
-      const storedActiveVehicle = await AsyncStorage.getItem("activeVehicle");
-      const storedUnits = await AsyncStorage.getItem("units");
-      const storedFilters = await AsyncStorage.getItem("filters");
-
-      if (storedVehicles) {
-        setVehicles(JSON.parse(storedVehicles));
-      }
-      if (storedActiveVehicle) {
-        setActiveVehicle(JSON.parse(storedActiveVehicle));
-      }
-      if (storedUnits) {
-        setUnits(JSON.parse(storedUnits));
-      }
-      if (storedFilters) {
-        setFilters(JSON.parse(storedFilters));
-      }
-    };
-
-    fetchPersistedData();
-  }, []);
-
-  useEffect(() => {
-    const persistData = async () => {
-      await AsyncStorage.setItem("vehicles", JSON.stringify(vehicles));
-      await AsyncStorage.setItem(
-        "activeVehicle",
-        JSON.stringify(activeVehicle),
-      );
-      await AsyncStorage.setItem("units", JSON.stringify(units));
-      await AsyncStorage.setItem("filters", JSON.stringify(filters));
-    };
-
-    persistData();
-  }, [vehicles, activeVehicle, units, filters]);
-
-  useEffect(() => {
+    console.log("auth state change listener called");
     const unsubscribe = onAuthStateChanged(auth, async (authUser) => {
       setUser(authUser);
       if (!authUser) {
@@ -141,33 +147,45 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
     return () => unsubscribe();
   }, []);
 
+  // Fetch vehicles from Firebase
   const fetchUserVehicles = async () => {
+    console.log("fetch vehicles called");
     if (!user) return;
     try {
       const fetchedVehicles = await fetchVehicles();
       if (!fetchedVehicles) return;
+
       setVehicles(fetchedVehicles);
 
       if (!activeVehicle && fetchedVehicles.length > 0) {
         setActiveVehicle(fetchedVehicles[0]);
+      } else if (activeVehicle) {
+        const existingVehicle = fetchedVehicles.find(
+          (vehicle) => vehicle.id === activeVehicle.id
+        );
+        setActiveVehicle(existingVehicle || null);
       }
     } catch (error) {
       console.error("Error fetching vehicles:", error);
     }
   };
 
+  // Fetch active vehicle data from Firebase
   const handleFetchActiveVehicleData = async (vehicleId: string) => {
+    console.log("fetch active vehicle data called");
     try {
       const vehicleData = await fetchActiveVehicleData(vehicleId);
       setActiveVehicleData(
-        vehicleData || { fuelUps: [], expenses: [], reminders: [] },
+        vehicleData || { fuelUps: [], expenses: [], reminders: [] }
       );
     } catch (error) {
       console.error("Error fetching active vehicle data:", error);
     }
   };
 
+  // Fetch active vehicle data when activeVehicle changes
   useEffect(() => {
+    console.log("fetch active vehicle data useeffect called");
     if (activeVehicle) {
       handleFetchActiveVehicleData(activeVehicle.id!);
     }

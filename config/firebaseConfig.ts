@@ -58,7 +58,6 @@ const getCurrentUser = () => {
   const user = auth.currentUser;
   if (!user) {
     console.log("No user logged in");
-    router.replace("/(auth)/onboarding");
     return null;
   }
   return user;
@@ -107,8 +106,11 @@ export const signUserOut = async () => {
 
 export const writeVehicle = async (vehicleData: vehicleData) => {
   console.log("writeVehicle called\n\n");
-  const user = getCurrentUser();
-  if (!user) return;
+  const user = auth.currentUser;
+  if (!user) {
+    console.log("No user logged in");
+    return null;
+  }
 
   try {
     const vehicleRef = collection(db, "users", user.uid, "vehicles");
@@ -125,8 +127,11 @@ export const updateVehicle = async (
   vehicleId: string
 ) => {
   console.log("updateVehicle called\n\n");
-  const user = getCurrentUser();
-  if (!user) return;
+  const user = auth.currentUser;
+  if (!user) {
+    console.log("No user logged in");
+    return null;
+  }
 
   try {
     const vehicleDocRef = doc(db, "users", user.uid, "vehicles", vehicleId);
@@ -141,8 +146,11 @@ export const updateVehicle = async (
 
 export const deleteVehicle = async (vehicleId: string) => {
   console.log("deleteVehicle called\n\n");
-  const user = getCurrentUser();
-  if (!user) return;
+  const user = auth.currentUser;
+  if (!user) {
+    console.log("No user logged in");
+    return null;
+  }
 
   try {
     const vehicleDocRef = doc(db, "users", user.uid, "vehicles", vehicleId);
@@ -161,8 +169,11 @@ export const writeRecord = async (
   recordData: fuelUpData | expenseData | reminderData
 ) => {
   console.log("writeRecord called\n\n");
-  const user = getCurrentUser();
-  if (!user) return;
+  const user = auth.currentUser;
+  if (!user) {
+    console.log("No user logged in");
+    return null;
+  }
 
   try {
     const RecordRef = collection(
@@ -199,8 +210,11 @@ export const updateRecord = async (
   updatedData: fuelUpData | expenseData | reminderData
 ) => {
   console.log("updateRecord called\n\n");
-  const user = getCurrentUser();
-  if (!user) return;
+  const user = auth.currentUser;
+  if (!user) {
+    console.log("No user logged in");
+    return null;
+  }
 
   try {
     const RecordRef = doc(
@@ -226,8 +240,11 @@ export const deleteRecord = async (
   recordId: string
 ) => {
   console.log("deleteRecord called\n\n");
-  const user = getCurrentUser();
-  if (!user) return;
+  const user = auth.currentUser;
+  if (!user) {
+    console.log("No user logged in");
+    return null;
+  }
 
   try {
     const recordRef = doc(
@@ -249,8 +266,11 @@ export const deleteRecord = async (
 
 export const fetchVehicles = async () => {
   console.log("fetchVehicles called\n\n");
-  const user = getCurrentUser();
-  if (!user) return;
+  const user = auth.currentUser;
+  if (!user) {
+    console.log("No user logged in");
+    return null;
+  }
 
   try {
     const vehicleRef = collection(db, "users", user.uid, "vehicles");
@@ -268,8 +288,11 @@ export const fetchVehicles = async () => {
 
 export const fetchActiveVehicleData = async (vehicleId: string) => {
   console.log("fetchActiveVehicleData called\n\n");
-  const user = getCurrentUser();
-  if (!user) return;
+  const user = auth.currentUser;
+  if (!user) {
+    console.log("No user logged in");
+    return null;
+  }
 
   try {
     const vehicleIdDocRef = doc(db, "users", user.uid, "vehicles", vehicleId);

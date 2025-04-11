@@ -7,7 +7,6 @@ import VehiclesMenu from "@/components/modals/VehiclesMenu";
 import Header2 from "@/components/Text/Header2";
 import Paragraph from "@/components/Text/Paragraph";
 import Title from "@/components/Text/Title";
-import { images } from "@/constants";
 import { useGlobal } from "@/context/GlobalContext";
 import {
   convertDistance,
@@ -15,7 +14,7 @@ import {
   convertFuel,
 } from "@/utils/unitConversion";
 import { router } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Image,
   RefreshControl,
@@ -39,16 +38,13 @@ const Home = () => {
     setRefreshing(true);
     try {
       await fetchUserVehicles();
+      console.log(activeVehicle?.image);
     } catch (error) {
       console.error("Error refreshing home:", error);
     } finally {
       setRefreshing(false);
     }
   };
-
-  useEffect(() => {
-    onRefresh();
-  }, []);
 
   const previousData = () => {
     const secondLastFuelUp = activeVehicleData.fuelUps[1];

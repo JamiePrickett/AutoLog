@@ -15,6 +15,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useRef, useState } from "react";
 import {
   deleteRecord,
+  fetchActiveVehicleData,
   updateRecord,
   writeRecord,
 } from "@/config/firebaseConfig";
@@ -84,6 +85,21 @@ const AddReminder = () => {
       }
     } else return;
   }, [update]);
+
+  const handleDelete = async () => {
+    setIsSubmitting(true);
+    try {
+      await deleteRecord(activeVehicle?.id!, "reminders", update);
+
+      await fetchActiveVehicleData(activeVehicle?.id!);
+
+      router.back();
+    } catch (error) {
+      console.error("Error deleting reminder:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const submit = async () => {
     setIsSubmitting(true);
@@ -236,9 +252,7 @@ const AddReminder = () => {
           {update ? (
             <CustomButton
               disabled={isSubmitting}
-              onPress={() =>
-                deleteRecord(activeVehicle?.id!, "reminders", update)
-              }
+              onPress={handleDelete}
               label="Delete"
               variant="outline"
               styles="mt-12"

@@ -17,7 +17,7 @@ import { useGlobal } from "@/context/GlobalContext";
 
 const VehicleSetup = () => {
   const { update } = useLocalSearchParams();
-  const { activeVehicle } = useGlobal();
+  const { activeVehicle, fetchUserVehicles } = useGlobal();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     vehicleName: "",
@@ -72,6 +72,7 @@ const VehicleSetup = () => {
 
       if (update) {
         await updateVehicle(vehicleData, activeVehicle?.id!);
+        await fetchUserVehicles();
       } else {
         await writeVehicle(vehicleData);
       }
@@ -80,7 +81,7 @@ const VehicleSetup = () => {
     } catch (error) {
       console.error(
         `Error ${update ? "Updating" : "Submitting"} vehicle:`,
-        error,
+        error
       );
     } finally {
       setIsSubmitting(false);
@@ -218,6 +219,3 @@ const VehicleSetup = () => {
 };
 
 export default VehicleSetup;
-function fetchUserVehicles() {
-  throw new Error("Function not implemented.");
-}

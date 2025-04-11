@@ -9,6 +9,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useRef, useState } from "react";
 import {
   deleteRecord,
+  fetchActiveVehicleData,
   updateRecord,
   writeRecord,
 } from "@/config/firebaseConfig";
@@ -40,7 +41,7 @@ const AddExpense = () => {
   useEffect(() => {
     if (update) {
       const expenseRecord = activeVehicleData.expenses.find(
-        (expense) => expense.id === update,
+        (expense) => expense.id === update
       );
       if (expenseRecord) {
         setForm({
@@ -84,7 +85,7 @@ const AddExpense = () => {
     } catch (error) {
       console.error(
         `Error ${update ? "Updating" : "Submitting"} Expense:`,
-        error,
+        error
       );
     } finally {
       setIsSubmitting(false);
@@ -96,7 +97,7 @@ const AddExpense = () => {
     try {
       await deleteRecord(activeVehicle?.id!, "expenses", update);
 
-      await fetchUserVehicles();
+      await fetchActiveVehicleData(activeVehicle?.id!);
 
       router.back();
     } catch (error) {
