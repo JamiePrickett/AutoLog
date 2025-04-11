@@ -10,16 +10,29 @@ type Props = {
   setValue: (date: string) => void;
 };
 
-const DateInput = ({ label = "Year", setValue }: Props) => {
-  const [date, setDate] = useState<Date | null>(null);
+const DateInput = ({ label = "Date:", setValue }: Props) => {
+  const [date, setDate] = useState<Date>(new Date());
   const [show, setShow] = useState(false);
+  const [mode, setMode] = useState<"date" | "time">("date");
 
   const onChange = (event: DateTimePickerEvent, selectedDate?: Date) => {
     if (event.type === "set" && selectedDate) {
-      setDate(selectedDate);
-      setValue(selectedDate.toISOString());
+      if (mode === "date") {
+        setDate(
+          new Date(selectedDate.setHours(date.getHours(), date.getMinutes()))
+        );
+        setMode("time");
+      } else if (mode === "time") {
+        setDate(
+          new Date(
+            date.setHours(selectedDate.getHours(), selectedDate.getMinutes())
+          )
+        );
+        setShow(false);
+        setMode("date");
+      }
+      setValue(new Date(date).toISOString());
     }
-    setShow(false);
   };
 
   return (
@@ -29,12 +42,13 @@ const DateInput = ({ label = "Year", setValue }: Props) => {
     >
       <MaterialCommunityIcons name="calendar" size={24} color={"#F4743A"} />
       <Text className="flex-1 font-GeologicaSemiBold text-light-100 text-[16px]">
-        {date ? date.toLocaleDateString() : label}
+        {date ? date.toLocaleString() : label}
       </Text>
       {show ? (
         <DateTimePicker
-          value={date || new Date()}
-          mode="date"
+          value={date}
+          mode={mode}
+          is24Hour={true}
           onChange={onChange}
         />
       ) : null}

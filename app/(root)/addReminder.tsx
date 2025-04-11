@@ -22,6 +22,15 @@ import CheckBox from "@/components/fields/CheckBox";
 import Header2 from "@/components/Text/Header2";
 import { useGlobal } from "@/context/GlobalContext";
 import Base from "@/components/Base";
+import * as Notifications from "expo-notifications";
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 const AddReminder = () => {
   const { update } = useLocalSearchParams() as { update: string };
@@ -45,9 +54,21 @@ const AddReminder = () => {
   const vehicleId = activeVehicle!.id;
 
   useEffect(() => {
+    const setupNotifications = async () => {
+      const { status } = await Notifications.requestPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Notification permission not granted");
+        return;
+      }
+    };
+
+    setupNotifications();
+  }, []);
+
+  useEffect(() => {
     if (update && activeVehicle) {
       const reminderRecord = activeVehicleData.reminders.find(
-        (reminder) => reminder.id === update,
+        (reminder) => reminder.id === update
       );
       if (reminderRecord) {
         setForm({
@@ -67,32 +88,68 @@ const AddReminder = () => {
   const submit = async () => {
     setIsSubmitting(true);
     try {
-      if (!form.date && !form.dueMileage) {
+      if (!form.date) {
         Alert.alert("Please enter either due date or mileage");
         return;
       } else if (!form.reminder) {
         Alert.alert("Please fill in all fields");
         return;
       }
+
+      const date = new Date(form.date);
+      let notificationId = "";
+
+      if (form.repeat) {
+        notificationId = await Notifications.scheduleNotificationAsync({
+          content: {
+            title: "Reminder",
+            body: form.reminder,
+          },
+          trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.CALENDAR,
+            repeats: true,
+            year: date.getFullYear(),
+            month: date.getMonth() + 1,
+            day: date.getDate(),
+            hour: date.getHours(),
+            minute: date.getMinutes(),
+          },
+        });
+        console.log("Notification repeating ID:", notificationId);
+      } else {
+        notificationId = await Notifications.scheduleNotificationAsync({
+          content: {
+            title: "Reminder",
+            body: form.reminder,
+          },
+          trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.DATE,
+            date: date,
+          },
+        });
+        console.log("Notification ID:", notificationId);
+      }
+
       const reminderData = {
         ...form,
         dueMileage: Number(form.dueMileage),
+        notificationId,
       };
 
-      {
-        update
-          ? await updateRecord(vehicleId!, "reminders", update, reminderData)
-          : await writeRecord(vehicleId!, "reminders", reminderData);
+      if (update) {
+        await updateRecord(vehicleId!, "reminders", update, reminderData);
+      } else {
+        await writeRecord(vehicleId!, "reminders", reminderData);
       }
 
       await fetchUserVehicles();
-
       router.back();
     } catch (error) {
       console.error(
         `Error ${update ? "Updating" : "Submitting"} Reminder:`,
-        error,
+        error
       );
+      Alert.alert(`Error ${update ? "Updating" : "Submitting"} Reminder`);
     } finally {
       setIsSubmitting(false);
     }

@@ -70,7 +70,7 @@ export const createUser = async (email: string, password: string) => {
     const currentUser = await createUserWithEmailAndPassword(
       auth,
       email,
-      password,
+      password
     );
 
     console.log(`User created with UID: ${currentUser.user.uid}`);
@@ -122,7 +122,7 @@ export const writeVehicle = async (vehicleData: vehicleData) => {
 
 export const updateVehicle = async (
   vehicleData: vehicleData,
-  vehicleId: string,
+  vehicleId: string
 ) => {
   console.log("updateVehicle called\n\n");
   const user = getCurrentUser();
@@ -158,7 +158,7 @@ export const deleteVehicle = async (vehicleId: string) => {
 export const writeRecord = async (
   vehicleId: string,
   recordType: "fuelUps" | "expenses" | "reminders",
-  recordData: fuelUpData | expenseData | reminderData,
+  recordData: fuelUpData | expenseData | reminderData
 ) => {
   console.log("writeRecord called\n\n");
   const user = getCurrentUser();
@@ -171,7 +171,7 @@ export const writeRecord = async (
       user.uid,
       "vehicles",
       vehicleId,
-      recordType,
+      recordType
     );
 
     await addDoc(RecordRef, recordData);
@@ -196,7 +196,7 @@ export const updateRecord = async (
   vehicleId: string,
   recordType: "fuelUps" | "expenses" | "reminders",
   recordId: string,
-  updatedData: fuelUpData | expenseData | reminderData,
+  updatedData: fuelUpData | expenseData | reminderData
 ) => {
   console.log("updateRecord called\n\n");
   const user = getCurrentUser();
@@ -210,7 +210,7 @@ export const updateRecord = async (
       "vehicles",
       vehicleId,
       recordType,
-      recordId,
+      recordId
     );
 
     await updateDoc(RecordRef, updatedData);
@@ -223,7 +223,7 @@ export const updateRecord = async (
 export const deleteRecord = async (
   vehicleId: string,
   recordType: "fuelUps" | "expenses" | "reminders",
-  recordId: string,
+  recordId: string
 ) => {
   console.log("deleteRecord called\n\n");
   const user = getCurrentUser();
@@ -237,7 +237,7 @@ export const deleteRecord = async (
       "vehicles",
       vehicleId,
       recordType,
-      recordId,
+      recordId
     );
 
     await deleteDoc(recordRef);
@@ -297,78 +297,78 @@ export const fetchActiveVehicleData = async (vehicleId: string) => {
   }
 };
 
-export const listenToVehicles = (
-  callback: (vehicles: vehicleData[]) => void,
-) => {
-  console.log("listenToVehicles called\n\n");
-  const user = getCurrentUser();
-  if (!user) return;
+// export const listenToVehicles = (
+//   callback: (vehicles: vehicleData[]) => void,
+// ) => {
+//   console.log("listenToVehicles called\n\n");
+//   const user = getCurrentUser();
+//   if (!user) return;
 
-  const vehicleRef = collection(db, "users", user.uid, "vehicles");
+//   const vehicleRef = collection(db, "users", user.uid, "vehicles");
 
-  const unsubscribe = onSnapshot(vehicleRef, (snapshot) => {
-    const vehicles = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as vehicleData[];
+//   const unsubscribe = onSnapshot(vehicleRef, (snapshot) => {
+//     const vehicles = snapshot.docs.map((doc) => ({
+//       id: doc.id,
+//       ...doc.data(),
+//     })) as vehicleData[];
 
-    callback(vehicles);
-  });
-  return unsubscribe;
-};
+//     callback(vehicles);
+//   });
+//   return unsubscribe;
+// };
 
-export const listenToActiveVehicleData = (
-  vehicleId: string,
-  callback: (data: {
-    fuelUps: fuelUpData[];
-    expenses: expenseData[];
-    reminders: reminderData[];
-  }) => void,
-) => {
-  console.log("listenToActiveVehicleData called\n\n");
-  const user = getCurrentUser();
-  if (!user) return;
+// export const listenToActiveVehicleData = (
+//   vehicleId: string,
+//   callback: (data: {
+//     fuelUps: fuelUpData[];
+//     expenses: expenseData[];
+//     reminders: reminderData[];
+//   }) => void,
+// ) => {
+//   console.log("listenToActiveVehicleData called\n\n");
+//   const user = getCurrentUser();
+//   if (!user) return;
 
-  const vehicleIdDocRef = doc(db, "users", user.uid, "vehicles", vehicleId);
+//   const vehicleIdDocRef = doc(db, "users", user.uid, "vehicles", vehicleId);
 
-  const fuelUpsRef = collection(vehicleIdDocRef, "fuelUps");
-  const expensesRef = collection(vehicleIdDocRef, "expenses");
-  const remindersRef = collection(vehicleIdDocRef, "reminders");
+//   const fuelUpsRef = collection(vehicleIdDocRef, "fuelUps");
+//   const expensesRef = collection(vehicleIdDocRef, "expenses");
+//   const remindersRef = collection(vehicleIdDocRef, "reminders");
 
-  const fuelUpsQuery = query(fuelUpsRef, orderBy("date", "desc"));
-  const expensesQuery = query(expensesRef, orderBy("date", "desc"));
-  const remindersQuery = query(remindersRef, orderBy("date", "desc"));
+//   const fuelUpsQuery = query(fuelUpsRef, orderBy("date", "desc"));
+//   const expensesQuery = query(expensesRef, orderBy("date", "desc"));
+//   const remindersQuery = query(remindersRef, orderBy("date", "desc"));
 
-  const unsubscribeFuelUps = onSnapshot(fuelUpsQuery, (snapshot) => {
-    const fuelUps = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as fuelUpData[];
+//   const unsubscribeFuelUps = onSnapshot(fuelUpsQuery, (snapshot) => {
+//     const fuelUps = snapshot.docs.map((doc) => ({
+//       id: doc.id,
+//       ...doc.data(),
+//     })) as fuelUpData[];
 
-    callback({ fuelUps, expenses: [], reminders: [] });
-  });
+//     callback({ fuelUps, expenses: [], reminders: [] });
+//   });
 
-  const unsubscribeExpenses = onSnapshot(expensesQuery, (snapshot) => {
-    const expenses = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as expenseData[];
+//   const unsubscribeExpenses = onSnapshot(expensesQuery, (snapshot) => {
+//     const expenses = snapshot.docs.map((doc) => ({
+//       id: doc.id,
+//       ...doc.data(),
+//     })) as expenseData[];
 
-    callback({ fuelUps: [], expenses, reminders: [] });
-  });
+//     callback({ fuelUps: [], expenses, reminders: [] });
+//   });
 
-  const unsubscribeReminders = onSnapshot(remindersQuery, (snapshot) => {
-    const reminders = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    })) as reminderData[];
+//   const unsubscribeReminders = onSnapshot(remindersQuery, (snapshot) => {
+//     const reminders = snapshot.docs.map((doc) => ({
+//       id: doc.id,
+//       ...doc.data(),
+//     })) as reminderData[];
 
-    callback({ fuelUps: [], expenses: [], reminders });
-  });
+//     callback({ fuelUps: [], expenses: [], reminders });
+//   });
 
-  return () => {
-    unsubscribeFuelUps();
-    unsubscribeExpenses();
-    unsubscribeReminders();
-  };
-};
+//   return () => {
+//     unsubscribeFuelUps();
+//     unsubscribeExpenses();
+//     unsubscribeReminders();
+//   };
+// };
