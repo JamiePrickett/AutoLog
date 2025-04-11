@@ -17,7 +17,12 @@ import Base from "@/components/Base";
 
 const AddFuelUp = () => {
   const { update } = useLocalSearchParams() as { update: string };
-  const { activeVehicle, activeVehicleData, fetchUserVehicles } = useGlobal();
+  const {
+    activeVehicle,
+    activeVehicleData,
+    fetchUserVehicles,
+    handleFetchActiveVehicleData,
+  } = useGlobal();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     date: new Date().toISOString(),
@@ -40,7 +45,7 @@ const AddFuelUp = () => {
   useEffect(() => {
     if (update) {
       const fuelUpRecord = activeVehicleData.fuelUps.find(
-        (fuelUp) => fuelUp.id === update,
+        (fuelUp) => fuelUp.id === update
       );
       if (fuelUpRecord) {
         setForm({
@@ -76,14 +81,27 @@ const AddFuelUp = () => {
           : await writeRecord(vehicleId!, "fuelUps", fuelUpData);
       }
 
-      await fetchUserVehicles();
-
+      await handleFetchActiveVehicleData(vehicleId!);
       router.back();
     } catch (error) {
       console.error(
         `Error ${update ? "Updating" : "Submitting"} FuelUp:`,
-        error,
+        error
       );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsSubmitting(true);
+    try {
+      await deleteRecord(vehicleId!, "fuelUps", update);
+
+      await handleFetchActiveVehicleData(vehicleId!);
+      router.back();
+    } catch (error) {
+      console.error("Error deleting Fuel Up:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -160,9 +178,7 @@ const AddFuelUp = () => {
           {update ? (
             <CustomButton
               disabled={isSubmitting}
-              onPress={() =>
-                deleteRecord(activeVehicle?.id!, "fuelUps", update)
-              }
+              onPress={handleDelete}
               label="Delete"
               variant="outline"
               styles="mt-12"

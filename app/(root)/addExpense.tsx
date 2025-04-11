@@ -9,7 +9,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useRef, useState } from "react";
 import {
   deleteRecord,
-  fetchActiveVehicleData,
   updateRecord,
   writeRecord,
 } from "@/config/firebaseConfig";
@@ -18,7 +17,12 @@ import Base from "@/components/Base";
 
 const AddExpense = () => {
   const { update } = useLocalSearchParams() as { update: string };
-  const { activeVehicle, activeVehicleData, fetchUserVehicles } = useGlobal();
+  const {
+    activeVehicle,
+    activeVehicleData,
+    fetchUserVehicles,
+    handleFetchActiveVehicleData,
+  } = useGlobal();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     expense: "",
@@ -79,8 +83,7 @@ const AddExpense = () => {
           : await writeRecord(vehicleId!, "expenses", expenseData);
       }
 
-      await fetchUserVehicles();
-
+      await handleFetchActiveVehicleData(vehicleId!);
       router.back();
     } catch (error) {
       console.error(
@@ -95,9 +98,9 @@ const AddExpense = () => {
   const handleDelete = async () => {
     setIsSubmitting(true);
     try {
-      await deleteRecord(activeVehicle?.id!, "expenses", update);
+      await deleteRecord(vehicleId!, "expenses", update);
 
-      await fetchActiveVehicleData(activeVehicle?.id!);
+      await handleFetchActiveVehicleData(vehicleId!);
 
       router.back();
     } catch (error) {

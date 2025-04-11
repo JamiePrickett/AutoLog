@@ -35,7 +35,8 @@ Notifications.setNotificationHandler({
 
 const AddReminder = () => {
   const { update } = useLocalSearchParams() as { update: string };
-  const { activeVehicle, activeVehicleData, fetchUserVehicles } = useGlobal();
+  const { activeVehicle, activeVehicleData, handleFetchActiveVehicleData } =
+    useGlobal();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     reminder: "",
@@ -85,21 +86,6 @@ const AddReminder = () => {
       }
     } else return;
   }, [update]);
-
-  const handleDelete = async () => {
-    setIsSubmitting(true);
-    try {
-      await deleteRecord(activeVehicle?.id!, "reminders", update);
-
-      await fetchActiveVehicleData(activeVehicle?.id!);
-
-      router.back();
-    } catch (error) {
-      console.error("Error deleting reminder:", error);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
 
   const submit = async () => {
     setIsSubmitting(true);
@@ -158,7 +144,7 @@ const AddReminder = () => {
         await writeRecord(vehicleId!, "reminders", reminderData);
       }
 
-      await fetchUserVehicles();
+      await handleFetchActiveVehicleData(vehicleId!);
       router.back();
     } catch (error) {
       console.error(
@@ -166,6 +152,21 @@ const AddReminder = () => {
         error
       );
       Alert.alert(`Error ${update ? "Updating" : "Submitting"} Reminder`);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setIsSubmitting(true);
+    try {
+      await deleteRecord(vehicleId!, "reminders", update);
+
+      await handleFetchActiveVehicleData(vehicleId!);
+
+      router.back();
+    } catch (error) {
+      console.error("Error deleting reminder:", error);
     } finally {
       setIsSubmitting(false);
     }

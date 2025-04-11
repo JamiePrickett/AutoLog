@@ -16,6 +16,7 @@ import {
   ReactNode,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 
@@ -66,6 +67,7 @@ const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 
 export const GlobalProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
+  const hasInitialized = useRef(false);
   const [vehicles, setVehicles] = useState<vehicleData[]>([]);
   const [activeVehicle, setActiveVehicle] = useState<vehicleData | null>(null);
   const [activeVehicleData, setActiveVehicleData] = useState<{
@@ -140,12 +142,40 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
         setActiveVehicle(null);
         setActiveVehicleData({ fuelUps: [], expenses: [], reminders: [] });
       } else {
-        await fetchUserVehicles();
+        await initializeData();
       }
     });
 
     return () => unsubscribe();
   }, []);
+
+  // initializeData function
+  const initializeData = async () => {
+    console.log("initialize data called");
+    if (!user) return;
+
+    try {
+      const fetchedVehicles = await fetchVehicles();
+      if (!fetchedVehicles) return;
+
+      setVehicles(fetchedVehicles);
+
+      if (fetchedVehicles.length > 0) {
+        const firstVehicle = fetchedVehicles[0];
+        setActiveVehicle(firstVehicle);
+
+        const vehicleData = await fetchActiveVehicleData(firstVehicle.id!);
+
+        setActiveVehicleData(
+          vehicleData || { fuelUps: [], expenses: [], reminders: [] }
+        );
+      }
+
+      hasInitialized.current = true;
+    } catch (error) {
+      console.error("Error initializing data:", error);
+    }
+  };
 
   // Fetch vehicles from Firebase
   const fetchUserVehicles = async () => {
@@ -182,14 +212,6 @@ export const GlobalProvider = ({ children }: { children: ReactNode }) => {
       console.error("Error fetching active vehicle data:", error);
     }
   };
-
-  // Fetch active vehicle data when activeVehicle changes
-  useEffect(() => {
-    console.log("fetch active vehicle data useeffect called");
-    if (activeVehicle) {
-      handleFetchActiveVehicleData(activeVehicle.id!);
-    }
-  }, [activeVehicle]);
 
   return (
     <GlobalContext.Provider
