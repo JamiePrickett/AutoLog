@@ -31,3 +31,15 @@ export const convertEconomy = (
   }
   return `${Math.round(economy * 100) / 100}`;
 };
+
+export const convertToLitre = (
+  fuel: number,
+  unit: "L" | "gal (US)" | "gal (UK)"
+): number => {
+  if (unit === "gal (US)") {
+    return Math.round(fuel * 3.78541);
+  } else if (unit === "gal (UK)") {
+    return Math.round(fuel * 4.54609);
+  }
+  return fuel;
+};

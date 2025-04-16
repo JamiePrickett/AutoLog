@@ -14,14 +14,15 @@ import {
 } from "@/config/firebaseConfig";
 import { useGlobal } from "@/context/GlobalContext";
 import Base from "@/components/Base";
+import { convertToLitre } from "@/utils/unitConversion";
 
 const AddFuelUp = () => {
   const { update } = useLocalSearchParams() as { update: string };
   const {
     activeVehicle,
     activeVehicleData,
-    fetchUserVehicles,
     handleFetchActiveVehicleData,
+    units,
   } = useGlobal();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
@@ -71,7 +72,7 @@ const AddFuelUp = () => {
       const fuelUpData = {
         ...form,
         mileage: Number(form.mileage),
-        fuelQuantity: Number(form.fuelQuantity),
+        fuelQuantity: convertToLitre(Number(form.fuelQuantity), units.fuel),
         price: Number(form.price),
       };
 
@@ -136,7 +137,7 @@ const AddFuelUp = () => {
               refer={mileageRef}
             />
             <InputField
-              placeholder="Fuel Quantity"
+              placeholder={`Fuel Quantity (${units.fuel})`}
               icon="fuel"
               keyboardType="number-pad"
               onChangeText={(value) =>
@@ -148,7 +149,7 @@ const AddFuelUp = () => {
               refer={fuelQuantityRef}
             />
             <InputField
-              placeholder="Price/L"
+              placeholder={`Price/${units.fuel}`}
               icon="receipt"
               keyboardType="number-pad"
               onChangeText={(value) => setForm({ ...form, price: value })}

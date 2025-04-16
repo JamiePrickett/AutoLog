@@ -17,7 +17,7 @@ import { useGlobal } from "@/context/GlobalContext";
 
 const VehicleSetup = () => {
   const { update } = useLocalSearchParams();
-  const { activeVehicle, fetchUserVehicles } = useGlobal();
+  const { activeVehicle, handleFetchUserVehicles } = useGlobal();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     vehicleName: "",
@@ -72,11 +72,11 @@ const VehicleSetup = () => {
 
       if (update) {
         await updateVehicle(vehicleData, activeVehicle?.id!);
-        await fetchUserVehicles();
       } else {
         await writeVehicle(vehicleData);
       }
 
+      await handleFetchUserVehicles();
       router.replace("/(root)/(tabs)/home");
     } catch (error) {
       console.error(

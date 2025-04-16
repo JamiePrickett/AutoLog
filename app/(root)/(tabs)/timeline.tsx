@@ -35,7 +35,7 @@ const Timeline = () => {
   };
 
   let fuelUps = [...activeVehicleData.fuelUps].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
   );
 
   fuelUps = fuelUps.map((item, index) => ({
@@ -61,7 +61,7 @@ const Timeline = () => {
   ];
 
   const sortedRecords = records.sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime(),
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
   );
 
   const filteredRecords = sortedRecords.filter((record) => {
