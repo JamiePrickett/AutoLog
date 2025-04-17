@@ -7,7 +7,7 @@ import Auth from "@/components/Auth";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Logo from "@/components/images/Logo";
-import { createUser } from "@/config/firebaseConfig";
+import { createGuestUser, createUser } from "@/config/firebaseConfig";
 import KeyboardBase from "@/components/KeyboardBase";
 
 const SignUp = () => {
@@ -40,6 +40,20 @@ const SignUp = () => {
       }
     } catch (error) {
       console.error("Error Submitting Sign Up form", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const guestSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      const user = await createGuestUser();
+      if (user) {
+        router.replace("/(root)/vehicleSetup");
+      }
+    } catch (error) {
+      console.error("Error Submitting Guest Sign Up form", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -86,7 +100,11 @@ const SignUp = () => {
               refer={confirmPasswordRef}
             />
           </View>
-          <Auth authPress={submit} authDisabled={isSubmitting} />
+          <Auth
+            authPress={submit}
+            guestPress={guestSubmit}
+            authDisabled={isSubmitting}
+          />
         </SafeAreaView>
       </ScrollView>
     </KeyboardBase>

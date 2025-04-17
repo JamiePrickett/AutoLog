@@ -6,10 +6,11 @@ import { Link } from "expo-router";
 type Props = {
   authPress?: () => void;
   signIn?: boolean;
+  guestPress?: () => void;
   authDisabled?: boolean;
 };
 
-const Auth = ({ authPress, signIn, authDisabled }: Props) => {
+const Auth = ({ authPress, signIn, guestPress, authDisabled }: Props) => {
   return (
     <View className="w-full items-center mt-12">
       <CustomButton
@@ -23,12 +24,15 @@ const Auth = ({ authPress, signIn, authDisabled }: Props) => {
         <Text className="text-lg text-light-200">Or</Text>
         <View className="flex-1 h-[1px] bg-light-200" />
       </View>
-      <CustomButton
-        disabled={authDisabled}
-        label="Continue as Guest"
-        iconColor="white"
-        variant="outline"
-      />
+      {!signIn && (
+        <CustomButton
+          disabled={authDisabled}
+          onPress={guestPress}
+          label="Continue as Guest"
+          iconColor="white"
+          variant="outline"
+        />
+      )}
       {signIn ? (
         <Link href="/(auth)/sign-up" className="flex-row mt-5">
           <Text className="text-xl text-light-200">

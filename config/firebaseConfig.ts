@@ -6,7 +6,6 @@ import {
   doc,
   getDocs,
   initializeFirestore,
-  onSnapshot,
   orderBy,
   persistentLocalCache,
   query,
@@ -19,6 +18,8 @@ import {
   // @ts-ignore
   getReactNativePersistence,
   signOut,
+  sendEmailVerification,
+  signInAnonymously,
 } from "firebase/auth";
 import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 import {
@@ -54,29 +55,31 @@ export const auth = initializeAuth(app, {
   persistence: getReactNativePersistence(ReactNativeAsyncStorage),
 });
 
-const getCurrentUser = () => {
-  const user = auth.currentUser;
-  if (!user) {
-    console.log("No user logged in");
-    return null;
-  }
-  return user;
-};
-
 export const createUser = async (email: string, password: string) => {
   console.log("createUser called\n\n");
   try {
-    const currentUser = await createUserWithEmailAndPassword(
+    const userCredential = await createUserWithEmailAndPassword(
       auth,
       email,
       password
     );
+    await sendEmailVerification(userCredential.user);
 
-    console.log(`User created with UID: ${currentUser.user.uid}`);
+    console.log(`User created with UID: ${userCredential.user.uid}`);
 
-    return currentUser.user;
+    return userCredential.user;
   } catch (error) {
     console.error("Error Creating account:", error);
+  }
+};
+
+export const createGuestUser = async () => {
+  console.log("createGuestUser called\n\n");
+  try {
+    const userCredential = await signInAnonymously(auth);
+    return userCredential.user;
+  } catch (error) {
+    console.error("Error creating guest user:", error);
   }
 };
 
@@ -320,78 +323,25 @@ export const fetchActiveVehicleData = async (vehicleId: string) => {
   }
 };
 
-// export const listenToVehicles = (
-//   callback: (vehicles: vehicleData[]) => void,
-// ) => {
-//   console.log("listenToVehicles called\n\n");
-//   const user = getCurrentUser();
-//   if (!user) return;
+export const submittedFeedback = async (feedback: string) => {
+  console.log("submittedFeedback called\n\n");
+  const user = auth.currentUser;
+  if (!user) {
+    console.log("No user logged in");
+    return null;
+  }
 
-//   const vehicleRef = collection(db, "users", user.uid, "vehicles");
+  try {
+    const feedbackRef = collection(db, "feedback");
 
-//   const unsubscribe = onSnapshot(vehicleRef, (snapshot) => {
-//     const vehicles = snapshot.docs.map((doc) => ({
-//       id: doc.id,
-//       ...doc.data(),
-//     })) as vehicleData[];
+    await addDoc(feedbackRef, {
+      uid: user.uid,
+      feedback: feedback,
+      date: new Date(),
+    });
 
-//     callback(vehicles);
-//   });
-//   return unsubscribe;
-// };
-
-// export const listenToActiveVehicleData = (
-//   vehicleId: string,
-//   callback: (data: {
-//     fuelUps: fuelUpData[];
-//     expenses: expenseData[];
-//     reminders: reminderData[];
-//   }) => void,
-// ) => {
-//   console.log("listenToActiveVehicleData called\n\n");
-//   const user = getCurrentUser();
-//   if (!user) return;
-
-//   const vehicleIdDocRef = doc(db, "users", user.uid, "vehicles", vehicleId);
-
-//   const fuelUpsRef = collection(vehicleIdDocRef, "fuelUps");
-//   const expensesRef = collection(vehicleIdDocRef, "expenses");
-//   const remindersRef = collection(vehicleIdDocRef, "reminders");
-
-//   const fuelUpsQuery = query(fuelUpsRef, orderBy("date", "desc"));
-//   const expensesQuery = query(expensesRef, orderBy("date", "desc"));
-//   const remindersQuery = query(remindersRef, orderBy("date", "desc"));
-
-//   const unsubscribeFuelUps = onSnapshot(fuelUpsQuery, (snapshot) => {
-//     const fuelUps = snapshot.docs.map((doc) => ({
-//       id: doc.id,
-//       ...doc.data(),
-//     })) as fuelUpData[];
-
-//     callback({ fuelUps, expenses: [], reminders: [] });
-//   });
-
-//   const unsubscribeExpenses = onSnapshot(expensesQuery, (snapshot) => {
-//     const expenses = snapshot.docs.map((doc) => ({
-//       id: doc.id,
-//       ...doc.data(),
-//     })) as expenseData[];
-
-//     callback({ fuelUps: [], expenses, reminders: [] });
-//   });
-
-//   const unsubscribeReminders = onSnapshot(remindersQuery, (snapshot) => {
-//     const reminders = snapshot.docs.map((doc) => ({
-//       id: doc.id,
-//       ...doc.data(),
-//     })) as reminderData[];
-
-//     callback({ fuelUps: [], expenses: [], reminders });
-//   });
-
-//   return () => {
-//     unsubscribeFuelUps();
-//     unsubscribeExpenses();
-//     unsubscribeReminders();
-//   };
-// };
+    console.log(`Feedback submitted: ${feedback}`);
+  } catch (error) {
+    console.error("Error submitting feedback:", error);
+  }
+};

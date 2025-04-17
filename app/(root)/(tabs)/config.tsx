@@ -14,10 +14,15 @@ import CustomButton from "@/components/CustomButton";
 import { useGlobal } from "@/context/GlobalContext";
 import Header2 from "@/components/Text/Header2";
 import CheckBox from "@/components/fields/CheckBox";
+import FeedbackForm from "@/components/modals/feedbackForm";
 
 const Config = () => {
   const { units, setUnits } = useGlobal();
   const [showModal, setShowModal] = useState(false);
+  const [feedbackVisible, setFeedbackVisible] = useState<
+    "feedback" | "submitted" | false
+  >(false);
+
   return (
     <Base>
       <SafeAreaView className="items-center">
@@ -30,7 +35,16 @@ const Config = () => {
             <Paragraph text="Sign Out" />
           </TouchableOpacity>
         </View>
-        <View className="w-full px-5">
+        <View className="w-full px-5 gap-8">
+          <CustomButton
+            label="Feedback"
+            variant="primary-200"
+            onPress={() => setFeedbackVisible("feedback")}
+          />
+          <FeedbackForm
+            modalVisible={feedbackVisible}
+            setModalVisible={setFeedbackVisible}
+          />
           <CustomButton
             onPress={() => setShowModal(true)}
             label={`Units ${units.distance}, ${units.fuel}`}

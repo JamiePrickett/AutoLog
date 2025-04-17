@@ -19,6 +19,7 @@ type Props = {
   returnKeyType?: "next" | "done";
   onSubmitEditing?: () => void;
   refer?: ForwardedRef<TextInput>;
+  lines?: number;
 };
 
 const InputField = ({
@@ -31,6 +32,7 @@ const InputField = ({
   returnKeyType,
   onSubmitEditing,
   refer,
+  lines = 1,
 }: Props) => {
   const [showPassword, setShowPassword] = useState(false);
   const [scale] = useState(new Animated.Value(1));
@@ -85,6 +87,8 @@ const InputField = ({
           onBlur={handleBlur}
           returnKeyType={returnKeyType}
           onSubmitEditing={onSubmitEditing}
+          numberOfLines={lines}
+          multiline={lines > 1}
         />
       </KeyboardAvoidingView>
       {secureTextEntry ? (
