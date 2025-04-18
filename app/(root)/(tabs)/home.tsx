@@ -113,7 +113,7 @@ const Home = () => {
 
     return [
       `${convertDistance(distance, units.distance)} ${units.distance}`,
-      `${convertFuel(fuelUsed / (fuelUpsLength + 1), units.fuel)} ${units.fuel}`,
+      `${convertFuel(fuelUsed / fuelUpsLength, units.fuel)} ${units.fuel}`,
       `${convertEconomy(economy, units.economy)} ${units.economy}`,
       `$${Math.round((cost / (fuelUpsLength + 1)) * 100) / 100}`,
     ];

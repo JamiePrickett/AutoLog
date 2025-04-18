@@ -265,7 +265,7 @@ const RecordCard = ({ info }: any) => {
                 )}
                 <DataField label={data5Label} data={data5} />
                 <DataField label={data6Label} data={data6} />
-                {info.notes ? <Paragraph text={`Notes:\n`} /> : ""}
+                {info.notes ? <Paragraph text={`Notes:\n${info.notes}`} /> : ""}
               </View>
             </View>
           </View>
