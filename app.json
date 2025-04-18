@@ -21,7 +21,9 @@
       },
       "package": "com.jamie1.AutoLog",
       "softwareKeyboardLayoutMode": "pan",
-      "permissions": ["notifications"]
+      "permissions": [
+        "notifications"
+      ]
     },
     "web": {
       "bundler": "metro",
@@ -39,7 +41,8 @@
           "backgroundColor": "#302A24"
         }
       ],
-      "expo-sqlite"
+      "expo-sqlite",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true

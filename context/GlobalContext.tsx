@@ -9,7 +9,6 @@ import {
   reminderData,
   vehicleData,
 } from "@/types/writeData";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { onAuthStateChanged, User } from "firebase/auth";
 import {
   createContext,
