@@ -15,10 +15,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useEffect, useRef, useState } from "react";
 import {
   deleteRecord,
-  fetchActiveVehicleData,
   updateRecord,
   writeRecord,
-} from "@/config/firebaseConfig";
+} from "@/config/firebaseFunctions";
 import CheckBox from "@/components/fields/CheckBox";
 import Header2 from "@/components/Text/Header2";
 import { useGlobal } from "@/context/GlobalContext";

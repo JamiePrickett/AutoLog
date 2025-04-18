@@ -11,7 +11,7 @@ import {
   deleteRecord,
   updateRecord,
   writeRecord,
-} from "@/config/firebaseConfig";
+} from "@/config/firebaseFunctions";
 import { useGlobal } from "@/context/GlobalContext";
 import Base from "@/components/Base";
 import { convertToLitre } from "@/utils/unitConversion";

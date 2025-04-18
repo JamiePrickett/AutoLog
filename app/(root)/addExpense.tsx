@@ -11,18 +11,14 @@ import {
   deleteRecord,
   updateRecord,
   writeRecord,
-} from "@/config/firebaseConfig";
+} from "@/config/firebaseFunctions";
 import { useGlobal } from "@/context/GlobalContext";
 import Base from "@/components/Base";
 
 const AddExpense = () => {
   const { update } = useLocalSearchParams() as { update: string };
-  const {
-    activeVehicle,
-    activeVehicleData,
-    fetchUserVehicles,
-    handleFetchActiveVehicleData,
-  } = useGlobal();
+  const { activeVehicle, activeVehicleData, handleFetchActiveVehicleData } =
+    useGlobal();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [form, setForm] = useState({
     expense: "",

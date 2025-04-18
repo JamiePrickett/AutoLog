@@ -13,7 +13,7 @@ import Auth from "@/components/Auth";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Logo from "@/components/images/Logo";
-import { signInEmailPassword } from "@/config/firebaseConfig";
+import { signInEmailPassword } from "@/config/firebaseFunctions";
 import Base from "@/components/Base";
 
 const SignIn = () => {

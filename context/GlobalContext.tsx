@@ -2,7 +2,7 @@ import {
   auth,
   fetchActiveVehicleData,
   fetchVehicles,
-} from "@/config/firebaseConfig";
+} from "@/config/firebaseFunctions";
 import {
   expenseData,
   fuelUpData,

@@ -10,7 +10,7 @@ import {
   deleteVehicle,
   updateVehicle,
   writeVehicle,
-} from "@/config/firebaseConfig";
+} from "@/config/firebaseFunctions";
 import PickImageComp from "@/components/fields/PickImageComp";
 import Base from "@/components/Base";
 import { useGlobal } from "@/context/GlobalContext";

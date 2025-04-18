@@ -7,7 +7,7 @@ import Auth from "@/components/Auth";
 import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Logo from "@/components/images/Logo";
-import { createGuestUser, createUser } from "@/config/firebaseConfig";
+import { createGuestUser, createUser } from "@/config/firebaseFunctions";
 import KeyboardBase from "@/components/KeyboardBase";
 
 const SignUp = () => {

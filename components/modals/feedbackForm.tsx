@@ -4,7 +4,7 @@ import Title from "../Text/Title";
 import Paragraph from "../Text/Paragraph";
 import InputField from "../fields/InputField";
 import CustomButton from "../CustomButton";
-import { submittedFeedback } from "@/config/firebaseConfig";
+import { submittedFeedback } from "@/config/firebaseFunctions";
 
 type Props = {
   modalVisible: "feedback" | "submitted" | false;

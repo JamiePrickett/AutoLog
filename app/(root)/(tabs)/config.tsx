@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 import Paragraph from "@/components/Text/Paragraph";
-import { signUserOut } from "@/config/firebaseConfig";
+import { signUserOut } from "@/config/firebaseFunctions";
 import CustomButton from "@/components/CustomButton";
 import { useGlobal } from "@/context/GlobalContext";
 import Header2 from "@/components/Text/Header2";
